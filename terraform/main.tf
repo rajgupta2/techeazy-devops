@@ -4,20 +4,22 @@ provider "aws" {
 
 
 resource "aws_instance" "example1" {
-    ami = var.ami_value
-    instance_type = var.instance_type_value
-    vpc_security_group_ids = [aws_security_group.mysg.id]
-    iam_instance_profile   = aws_iam_instance_profile.s3_creator_uploader_profile.name 
+  ami                    = var.ami_value
+  instance_type          = var.instance_type_value
+  subnet_id              = var.subnet_id_defaultVPC
+  associate_public_ip_address = true
+  vpc_security_group_ids = [aws_security_group.mysg.id]
+  iam_instance_profile   = aws_iam_instance_profile.s3_creator_uploader_profile.name
 
-    user_data = base64encode(templatefile("./${var.stage}_script.sh", {
-    REPO_URL            = var.repo_url_value
-    JAVA_VERSION        = var.java_version_value # Match JAVA_VERSION in script
-    REPO_DIR_NAME       = var.repo_dir_name    # Match REPO_DIR_NAME in script
-    STOP_INSTANCE       = var.stop_after_minutes # Match STOP_INSTANCE in script
-    S3_BUCKET_NAME      = var.s3_bucket_name     # Match S3_BUCKET_NAME in script
-    AWS_REGION_FOR_SCRIPT = var.aws_region       # NEW: Pass the AWS region from your provider config
-    GITHUB_TOKEN  = var.github_token
-    GIT_REPO_PATH = var.git_repo_path
+  user_data = base64encode(templatefile("./${var.stage}_script.sh", {
+    REPO_URL              = var.repo_url_value
+    JAVA_VERSION          = var.java_version_value # Match JAVA_VERSION in script
+    REPO_DIR_NAME         = var.repo_dir_name      # Match REPO_DIR_NAME in script
+    STOP_INSTANCE         = var.stop_after_minutes # Match STOP_INSTANCE in script
+    S3_BUCKET_NAME        = var.s3_bucket_name     # Match S3_BUCKET_NAME in script
+    AWS_REGION_FOR_SCRIPT = var.aws_region         # NEW: Pass the AWS region from your provider config
+    GITHUB_TOKEN          = var.github_token
+    GIT_REPO_PATH         = var.git_repo_path
   }))
 
   tags = {
@@ -36,9 +38,9 @@ resource "aws_security_group" "mysg" {
 
   ingress {
     description = "HTTP from vpc"
-    from_port = 80
-    to_port = 80
-    protocol = "tcp"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -51,9 +53,9 @@ resource "aws_security_group" "mysg" {
 
   ingress {
     description = "ssh"
-    from_port = 22
-    to_port = 22
-    protocol = "tcp"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -69,13 +71,12 @@ resource "aws_security_group" "mysg" {
     Name = "Web.sg-${var.stage}"
   }
 
-  
+
 }
 
 resource "aws_s3_bucket" "example" {
-  bucket = var.s3_bucket_name 
-
-  #force_destroy = true 
+  bucket = var.s3_bucket_name
+  #force_destroy = true
 
   tags = {
     Name        = "My bucket"
@@ -112,7 +113,7 @@ resource "aws_iam_role" "s3_creator_uploader_role" {
         Effect = "Allow"
         Sid    = ""
         Principal = {
-          Service = "ec2.amazonaws.com" 
+          Service = "ec2.amazonaws.com"
         }
       },
     ]
@@ -131,21 +132,21 @@ resource "aws_iam_policy" "s3_creator_uploader_policy" {
     Version = "2012-10-17"
     Statement = [
       {
-        Effect   = "Allow"
-        Action   = [
-          "s3:CreateBucket", 
-          "s3:PutObject",    
-          "s3:PutObjectAcl", 
+        Effect = "Allow"
+        Action = [
+          "s3:CreateBucket",
+          "s3:PutObject",
+          "s3:PutObjectAcl",
         ]
-        Resource = "*" 
+        Resource = "*"
       },
       {
-        Effect   = "Deny"     
-        Action   = [
-          "s3:Get*",  
-          "s3:List*", 
+        Effect = "Deny"
+        Action = [
+          "s3:Get*",
+          "s3:List*",
         ]
-        Resource = "*" 
+        Resource = "*"
       },
     ]
   })
@@ -161,7 +162,7 @@ resource "aws_iam_role_policy_attachment" "s3_creator_uploader_attachment" {
 # An instance profile is required to attach an IAM role to an EC2 instance.
 resource "aws_iam_instance_profile" "s3_creator_uploader_profile" {
   name_prefix = "s3-creator-uploader-profile"
-  role = aws_iam_role.s3_creator_uploader_role.name # Reference the role created above
+  role        = aws_iam_role.s3_creator_uploader_role.name # Reference the role created above
 
   tags = {
     Name = "S3CreatorUploaderInstanceProfile-${var.stage}"
