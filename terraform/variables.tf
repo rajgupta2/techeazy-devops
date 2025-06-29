@@ -36,7 +36,7 @@ variable "key_name_value" {
 variable "repo_url_value" {
   description = "the github url of repository to clone"
   type        = string
-  default     = "https://github.com/techeazy-consulting/techeazy-devops.git"
+  default     = "https://github.com/rajgupta2/techeazy-devops.git"
 }
 
 variable "repo_dir_name" {
@@ -72,5 +72,5 @@ variable "github_token" {
 variable "git_repo_path" {
   description = "Path to the Git repository"
   type        = string
-  default     = "https://github.com/techeazy-consulting/techeazy-devops.git" # Replace with your actual Git repository path
+  default     = "https://github.com/rajgupta2/techeazy-devops.git" # Replace with your actual Git repository path
 }
