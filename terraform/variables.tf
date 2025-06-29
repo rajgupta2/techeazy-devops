@@ -7,7 +7,7 @@ variable "aws_region" {
 variable "ami_value" {
   description = "value for the ami"
   type        = string
-  default     = "ami-018046b953a698135"
+  default     = "ami-021a584b49225376d"
 }
 
 variable "subnet_id_defaultVPC" {
